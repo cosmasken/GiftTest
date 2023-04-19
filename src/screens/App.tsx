@@ -6,24 +6,10 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {NativeBaseProvider, extendTheme} from 'native-base';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-} from 'react-native';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
-import Contacts from 'react-native-contacts';
-
-import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {useSelector} from 'react-redux';
-import {Merchant, GiftCard, AppState} from '../../types';
+import {Merchant, AppState} from '../../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
@@ -31,13 +17,10 @@ interface AppProps {
   navigation: NavigationProp<ParamListBase>;
 }
 
-const App =({navigation}: AppProps) => {
-  const savedGiftcards = useSelector((state: AppState) => state.giftCards);
+const App = ({navigation}: AppProps) => {
+  const [giftCards, setGiftCards] = useState([]);
 
-  const savedMerchants = useSelector((state: AppState) => state.merchants);
-  const [giftCards, setGiftCards] = useState(savedGiftcards);
-
-  const [merchants, setMerchants] = useState<Merchant[]>(savedMerchants);
+  const [merchants, setMerchants] = useState<Merchant[]>([]);
 
   useEffect(() => {
     async function fetchData() {
