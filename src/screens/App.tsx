@@ -23,10 +23,15 @@ import Contacts from 'react-native-contacts';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {useSelector} from 'react-redux';
-import {Merchant, GiftCard, AppState} from './types';
+import {Merchant, GiftCard, AppState} from '../../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
-const App = ({navigation}) => {
+interface AppProps {
+  navigation: NavigationProp<ParamListBase>;
+}
+
+const App =({navigation}: AppProps) => {
   const savedGiftcards = useSelector((state: AppState) => state.giftCards);
 
   const savedMerchants = useSelector((state: AppState) => state.merchants);

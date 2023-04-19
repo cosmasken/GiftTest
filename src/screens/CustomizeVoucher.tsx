@@ -1,4 +1,10 @@
-import {ScrollView, Button, Text, useDisclose, Actionsheet} from 'native-base';
+import {
+  ScrollView,
+  Button,
+  Text,
+  Actionsheet,
+  CheckIcon,
+} from 'native-base';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
 import React, {useEffect, useState} from 'react';
@@ -9,23 +15,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-//import CustomButton from './components/CustomBtn';
 import GiftCard from '../components/GiftCard';
 
 import {Merchant, GiftCard as GiftCard1, AppState} from '../../types';
-import {useSelector} from 'react-redux';
+import {Select} from 'native-base';
+import { colorOptions } from '../colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-//import Icon from 'react-native-vector-icons/FontAwesome';
-
-const colorOptions = [
-  '#ff0000', // red
-  '#008000', // green
-  '#0000ff', // blue
-  '#ffd700', // gold
-  '#9400d3', // purple
-  '#ff69b4', // pink
-];
 interface CustomizeVoucherProps {
   navigation: NavigationProp<ParamListBase>;
 }
@@ -33,10 +29,14 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(
     null,
   );
-
+  const [service, setService] = React.useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredData, setFilteredData] = useState([]);
 
+  const handleSelectValue = (value: string) => {
+    setSelectedValue(value);
+    setModalVisible(false);
+  };
   const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
 
   const handleColorPress = (color: string) => {
@@ -70,8 +70,15 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
   }, []);
   const handleMerchantSelect = (merchant: Merchant) => {
     setSelectedMerchant(merchant);
+
     setSelectedCategory(merchant.lookup_values_3);
     setIsOpen(false);
+    // filter data based on selected merchant
+    const filteredData = data.filter(
+      (m: Merchant) => m.lookup_values_3 === merchant.lookup_values_3,
+    );
+    setFilteredData(filteredData);
+    console.log('NWE FILTERED DATA IS ===', filteredData);
   };
 
   const handleAddGiftCard = () => {
@@ -79,8 +86,32 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
     console.log('Add gift card clicked');
   };
 
+  // function to render filtered data
+  const renderFilteredData = () => {
+    return filteredData.map((merchant: Merchant) => (
+      <TouchableOpacity
+        key={merchant.lookup_values_2}
+        onPress={() => handleMerchantSelect(merchant)}
+        style={[
+          styles.merchantOption,
+          selectedMerchant?.lookup_values_2 === merchant.lookup_values_2 &&
+            styles.merchantOptionSelected,
+        ]}>
+        <Text style={styles.merchantOptionText}>
+          {merchant.lookup_values_1}
+        </Text>
+      </TouchableOpacity>
+    ));
+  };
+
   const renderMerchantOptions = () => {
-    return data.map((merchant: Merchant) => (
+    const uniqueMerchants = data.filter(
+      (merchant, index, self) =>
+        index ===
+        self.findIndex(m => m.lookup_values_3 === merchant.lookup_values_3),
+    );
+
+    return uniqueMerchants.map((merchant: Merchant) => (
       <TouchableOpacity
         key={merchant.lookup_values_2}
         onPress={() => handleMerchantSelect(merchant)}
@@ -103,17 +134,43 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
         </Button>
         <Actionsheet isOpen={isOpen} onClose={() => setIsOpen(false)}>
           <Actionsheet.Content>
+            {/* render categories */}
             {renderMerchantOptions()}
+
             <TouchableOpacity onPress={() => setIsOpen(false)}>
               <Text>Cancel</Text>
             </TouchableOpacity>
           </Actionsheet.Content>
         </Actionsheet>
       </>
+      <>
+        <Select
+          selectedValue={service}
+          minWidth="200"
+          accessibilityLabel="Choose Merchant"
+          placeholder="Choose Merchant"
+          _selectedItem={{
+            bg: 'teal.600',
+            endIcon: <CheckIcon size="5" />,
+          }}
+          mt={1}
+          onValueChange={itemValue => setService(itemValue)}>
+          {filteredData.map((merchant: Merchant) => (
+            // <Text key={merchant.lookup_values_1}>
+            //   {merchant.lookup_values_1}
+            // </Text>
+
+            <Select.Item
+              label={merchant.lookup_values_1}
+              value={merchant.lookup_values_1}
+            />
+          ))}
+        </Select>
+      </>
       <ScrollView>
         <View style={styles.imageContainer}>
           <GiftCard
-            name={'NetFlix'}
+            name={service}
             bgColor={selectedColor}
             date={'2022'}
             suffix={'900'}
@@ -121,9 +178,9 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
           {/* <Text style={[styles.imageText, {color: selectedColor}]}>NETFLIX</Text> */}
         </View>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Netflix Card</Text>
+          <Text style={styles.amountText}>{service} Card</Text>
           <Text style={styles.amountText}>
-            This card allows you to buy anything from Netflix
+            This card allows you to buy anything from {service}. It does not expire.
           </Text>
         </View>
         <View style={styles.amountContainer}>

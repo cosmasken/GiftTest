@@ -1,6 +1,6 @@
 import React from 'react';
-import {View, Text, StyleSheet, StyleProp, ViewStyle} from 'react-native';
-
+import {View, StyleSheet, StyleProp, ViewStyle} from 'react-native';
+import {Text} from 'native-base';
 const circleSize = 250;
 export default function GiftCard({
   name,
@@ -22,7 +22,9 @@ export default function GiftCard({
       <View style={[styles.bgCircle, styles.rightBgCircle]} />
       <View style={[styles.bgCircle, styles.bottomBgCircle]} />
       <View style={styles.cardNumberContainer}>
-        <Text style={[styles.text, {color: textColor}]}>{name}</Text>
+        <Text isTruncated style={[styles.text, {color: textColor}]}>
+          {name}
+        </Text>
       </View>
     </View>
   );
@@ -52,8 +54,8 @@ const styles = StyleSheet.create({
 
   text: {
     fontFamily: 'Montserrat-Bold',
-    fontSize: 30,
-    letterSpacing: 0.53,
+    fontSize: 15,
+    letterSpacing: 0.2,
   },
   bgCircle: {
     position: 'absolute',
