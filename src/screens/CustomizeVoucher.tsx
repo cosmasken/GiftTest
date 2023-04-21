@@ -55,7 +55,7 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
       }
     };
     fetchData();
-  }, []);
+  }, [navigation]);
   const handleMerchantSelect = (merchant: Merchant) => {
     setSelectedMerchant(merchant);
 
@@ -81,7 +81,7 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
       }
     };
     getData();
-  }, []);
+  }, [navigation]);
 
   const addDataToGiftCards = async (newData: {
     id: any;

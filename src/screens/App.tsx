@@ -29,11 +29,12 @@ interface AppProps {
 const Item = ({amount, merchantname, receiver, note, category}) => {
   return (
     <View style={styles.item}>
-      <Text>{category}</Text>
-      <Text>{merchantname}</Text>
-      <Text>{amount}</Text>
-      <Text>{receiver}</Text>
-      <Text>{note}</Text>
+      <Text style={styles.giftcardText}>Receiver : {receiver}</Text>
+      <Text style={styles.giftcardText}>Category : {category}</Text>
+      <Text style={styles.giftcardText}>Merchant : {merchantname}</Text>
+      <Text style={styles.giftcardText}>Amount : {amount}</Text>
+
+      <Text style={styles.giftcardText}>Note : {note}</Text>
     </View>
   );
 };
@@ -63,7 +64,7 @@ const App = ({navigation}: AppProps) => {
           setGiftCards(JSON.parse(existingData));
 
           //  setGiftCards(JSON.parse(existingData));
-          console.log('OUR GIFTCARDS ARE ====+===', giftCards);
+          console.log('latest GIFTCARDS ARE ====+===', giftCards);
         }
       } catch (error) {
         console.log(error);
@@ -71,7 +72,7 @@ const App = ({navigation}: AppProps) => {
       }
     };
     getData();
-  }, []);
+  }, [navigation]);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
 
   useEffect(() => {
@@ -214,6 +215,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     paddingVertical: 16,
     borderRadius: 10,
+    alignItems: 'center',
   },
   addButtonText: {},
   list: {
@@ -223,7 +225,8 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%', // 100% devided by the number of rows you want
     justifyContent: 'center',
-
+    alignItems: 'center',
+    borderRadius: 10,
     // my visual styles; not important for the grid
     padding: 10,
     backgroundColor: 'rgba(249, 180, 45, 0.25)',
@@ -231,9 +234,14 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
   },
   flatlistContainer: {
-    flex: 3, // the number of columns you want to devide the screen into
+    flex: 1, // the number of columns you want to devide the screen into
     marginHorizontal: 'auto',
     width: '100%',
+  },
+  giftcardText: {
+    fontFamily: 'Montserrat-Light',
+    alignSelf: 'flex-start',
+    fontSize: 15,
   },
 });
 
