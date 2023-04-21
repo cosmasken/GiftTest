@@ -7,19 +7,71 @@
 
 import React, {useEffect, useState} from 'react';
 
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-import {Merchant, AppState} from '../../types';
+import {Merchant} from '../../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
+import GiftCard from '../components/GiftCard';
+import NetInfo from '@react-native-community/netinfo';
 interface AppProps {
   navigation: NavigationProp<ParamListBase>;
 }
 
-const App = ({navigation}: AppProps) => {
-  const [giftCards, setGiftCards] = useState([]);
+const Item = ({amount, merchantname, receiver, note, category}) => {
+  return (
+    <View style={styles.item}>
+      <Text>{category}</Text>
+      <Text>{merchantname}</Text>
+      <Text>{amount}</Text>
+      <Text>{receiver}</Text>
+      <Text>{note}</Text>
+    </View>
+  );
+};
 
+const App = ({navigation}: AppProps) => {
+  const [giftCards, setGiftCards] = useState<
+    {
+      id: number;
+      merchantname: string;
+      category: string;
+      amount: number;
+      receiver: string;
+      note: string;
+      color: string;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        // await AsyncStorage.clear();
+        const existingData = await AsyncStorage.getItem('giftCards');
+        if (existingData !== null) {
+          // await AsyncStorage.clear();
+          // setGiftCards(JSON.parse(JSON.stringify(existingData)));
+
+          setGiftCards(JSON.parse(existingData));
+
+          //  setGiftCards(JSON.parse(existingData));
+          console.log('OUR GIFTCARDS ARE ====+===', giftCards);
+        }
+      } catch (error) {
+        console.log(error);
+        //setGiftCards([]);
+      }
+    };
+    getData();
+  }, []);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
 
   useEffect(() => {
@@ -70,12 +122,27 @@ const App = ({navigation}: AppProps) => {
           </View>
         </View>
       ) : (
-        <FlatList
-          data={giftCards}
-          renderItem={renderGiftCard}
-          keyExtractor={item => item.id.toString()}
-          style={styles.list}
-        />
+        <View style={styles.flatlistContainer}>
+          <FlatList
+            data={giftCards}
+            renderItem={({item}) => (
+              <Item
+                merchantname={item.merchantname}
+                receiver={item.receiver}
+                note={item.note}
+                category={item.category}
+                amount={item.amount}
+              />
+            )}
+            keyExtractor={item => item.id.toString()}
+          />
+
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => navigation.navigate('CustomizeVoucher')}>
+            <Text>Add Another</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -151,6 +218,22 @@ const styles = StyleSheet.create({
   addButtonText: {},
   list: {
     marginTop: 20,
+  },
+  item: {
+    flex: 1,
+    width: '100%', // 100% devided by the number of rows you want
+    justifyContent: 'center',
+
+    // my visual styles; not important for the grid
+    padding: 10,
+    backgroundColor: 'rgba(249, 180, 45, 0.25)',
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  flatlistContainer: {
+    flex: 3, // the number of columns you want to devide the screen into
+    marginHorizontal: 'auto',
+    width: '100%',
   },
 });
 

@@ -32,3 +32,12 @@ export type Merchant = {
     merchantName: number;
     // Other properties
   }
+  export interface GiftCardData {
+    id: number;
+    category: string;
+    merchantname: string;
+    receiver: string;
+    amount: number;
+    note: string;
+    color: string;
+  }

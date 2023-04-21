@@ -1,10 +1,4 @@
-import {
-  ScrollView,
-  Button,
-  Text,
-  Actionsheet,
-  CheckIcon,
-} from 'native-base';
+import {ScrollView, Button, Text, Actionsheet, CheckIcon} from 'native-base';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
 import React, {useEffect, useState} from 'react';
@@ -17,11 +11,11 @@ import {
 } from 'react-native';
 import GiftCard from '../components/GiftCard';
 
-import {Merchant, GiftCard as GiftCard1, AppState} from '../../types';
+import {Merchant, AppState} from '../../types';
 import {Select} from 'native-base';
-import { colorOptions } from '../colors';
+import {colorOptions} from '../colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {GiftCardData} from '../../types';
 interface CustomizeVoucherProps {
   navigation: NavigationProp<ParamListBase>;
 }
@@ -29,28 +23,22 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(
     null,
   );
+  const [giftCards, setGiftCards] = React.useState([]);
   const [service, setService] = React.useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredData, setFilteredData] = useState([]);
 
-  const handleSelectValue = (value: string) => {
-    setSelectedValue(value);
-    setModalVisible(false);
-  };
   const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
+  const [note, setNote] = useState('');
+
+  const handleNoteChange = (value: string) => {
+    setNote(value);
+  };
 
   const handleColorPress = (color: string) => {
     setSelectedColor(color);
   };
   const [isOpen, setIsOpen] = useState(false);
-
-  const openActionSheet = () => {
-    setIsOpen(true);
-  };
-
-  const closeActionSheet = () => {
-    setIsOpen(false);
-  };
 
   const [data, setData] = useState([]);
 
@@ -81,28 +69,49 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
     console.log('NWE FILTERED DATA IS ===', filteredData);
   };
 
-  const handleAddGiftCard = () => {
-    // TODO: handle adding the gift card
-    console.log('Add gift card clicked');
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const existingData = await AsyncStorage.getItem('giftCards');
+        if (existingData !== null) {
+          setGiftCards(JSON.parse(existingData));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getData();
+  }, []);
+
+  const addDataToGiftCards = async (newData: {
+    id: any;
+    category: any;
+    merchantname: any;
+    receiver: any;
+    amount: any;
+    note: any;
+    color: any;
+  }) => {
+    try {
+      const existingData = await AsyncStorage.getItem('giftCards');
+      let data = [];
+      if (existingData !== null) {
+        data = JSON.parse(existingData);
+      }
+      data.push(newData);
+      await AsyncStorage.setItem('giftCards', JSON.stringify(data));
+      setGiftCards(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleAddNewGiftCard = (data: GiftCardData): void => {
+    addDataToGiftCards(data);
+    navigation.navigate('Home');
   };
 
   // function to render filtered data
-  const renderFilteredData = () => {
-    return filteredData.map((merchant: Merchant) => (
-      <TouchableOpacity
-        key={merchant.lookup_values_2}
-        onPress={() => handleMerchantSelect(merchant)}
-        style={[
-          styles.merchantOption,
-          selectedMerchant?.lookup_values_2 === merchant.lookup_values_2 &&
-            styles.merchantOptionSelected,
-        ]}>
-        <Text style={styles.merchantOptionText}>
-          {merchant.lookup_values_1}
-        </Text>
-      </TouchableOpacity>
-    ));
-  };
 
   const renderMerchantOptions = () => {
     const uniqueMerchants = data.filter(
@@ -156,10 +165,6 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
           mt={1}
           onValueChange={itemValue => setService(itemValue)}>
           {filteredData.map((merchant: Merchant) => (
-            // <Text key={merchant.lookup_values_1}>
-            //   {merchant.lookup_values_1}
-            // </Text>
-
             <Select.Item
               label={merchant.lookup_values_1}
               value={merchant.lookup_values_1}
@@ -180,7 +185,8 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
         <View style={styles.headerContainer}>
           <Text style={styles.amountText}>{service} Card</Text>
           <Text style={styles.amountText}>
-            This card allows you to buy anything from {service}. It does not expire.
+            This card allows you to buy anything from {service}. It does not
+            expire.
           </Text>
         </View>
         <View style={styles.amountContainer}>
@@ -221,7 +227,28 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
             {/* <Icon name="paint-brush" size={28} color="#000" /> */}
           </View>
         </View>
-        <TouchableOpacity style={styles.addButton} onPress={() => isOpen}>
+        <Text style={styles.subtitle}>Add a note (optional)</Text>
+        <TextInput
+          style={styles.textInput}
+          onChangeText={handleNoteChange}
+          value={note}
+          placeholder="Enter your note here"
+          multiline
+          numberOfLines={4}
+        />
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() =>
+            handleAddNewGiftCard({
+              id: Math.random(),
+              merchantname: service,
+              amount: 6666,
+              note: note,
+              category: selectedCategory,
+              receiver: 'jane',
+              color: {selectedColor},
+            })
+          }>
           <Text>Add Gift Card</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -395,6 +422,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+  },
+  textInput: {
+    width: '100%',
+    height: 100,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 20,
+    textAlignVertical: 'top',
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
   },
 });
 export default CustomizeVoucher;
