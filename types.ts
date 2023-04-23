@@ -41,3 +41,8 @@ export type Merchant = {
     note: string;
     color: string;
   }
+
+  export interface RootState {
+    merchants: Merchant[];
+  }
+  

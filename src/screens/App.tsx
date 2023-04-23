@@ -6,7 +6,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
-
+import {useSelector} from 'react-redux';
 import {
   FlatList,
   Image,
@@ -16,7 +16,7 @@ import {
   View,
 } from 'react-native';
 
-import {Merchant} from '../../types';
+import {Merchant, RootState} from '../../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
@@ -40,6 +40,7 @@ const Item = ({amount, merchantname, receiver, note, category}) => {
 };
 
 const App = ({navigation}: AppProps) => {
+  const fucknem = useSelector((state: RootState) => state.merchants);
   const [giftCards, setGiftCards] = useState<
     {
       id: number;
@@ -58,13 +59,10 @@ const App = ({navigation}: AppProps) => {
         // await AsyncStorage.clear();
         const existingData = await AsyncStorage.getItem('giftCards');
         if (existingData !== null) {
-          // await AsyncStorage.clear();
-          // setGiftCards(JSON.parse(JSON.stringify(existingData)));
-
           setGiftCards(JSON.parse(existingData));
-
+          console.log('latest fucknem ARE ====+===', fucknem);
           //  setGiftCards(JSON.parse(existingData));
-          console.log('latest GIFTCARDS ARE ====+===', giftCards);
+          //   console.log('latest GIFTCARDS ARE ====+===', giftCards);
         }
       } catch (error) {
         console.log(error);
