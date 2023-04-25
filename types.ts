@@ -44,5 +44,37 @@ export type Merchant = {
 
   export interface RootState {
     merchants: Merchant[];
+    contacts: Contact[];
+  }
+  
+  export interface Contact {
+    // id: string;
+    givenName: string;
+    middleName?: string;
+    familyName: string;
+    company?: string;
+    jobTitle?: string;
+    department?: string;
+    phoneNumbers?: {
+      label?: string;
+      number: string;
+    }[];
+    emailAddresses?: {
+      label?: string;
+      email: string;
+    }[];
+    postalAddresses?: {
+      label?: string;
+      formattedAddress: string;
+      street?: string;
+      city?: string;
+      state?: string;
+      region?: string;
+      postCode?: string;
+      country?: string;
+      isoCountryCode?: string;
+    }[];
+    thumbnailPath?: string;
+    recordID?: string;
   }
   

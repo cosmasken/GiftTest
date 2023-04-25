@@ -40,8 +40,20 @@ const Item = ({amount, merchantname, receiver, note, category}) => {
 };
 
 const App = ({navigation}: AppProps) => {
-  const fucknem = useSelector((state: RootState) => state.merchants);
+  const reduxMerchants = useSelector((state: RootState) => state.merchants);
   const [giftCards, setGiftCards] = useState<
+    {
+      id: number;
+      merchantname: string;
+      category: string;
+      amount: number;
+      receiver: string;
+      note: string;
+      color: string;
+    }[]
+  >([]);
+
+  const [giftCards1, setGiftCards1] = useState<
     {
       id: number;
       merchantname: string;
@@ -56,17 +68,14 @@ const App = ({navigation}: AppProps) => {
   useEffect(() => {
     const getData = async () => {
       try {
-        // await AsyncStorage.clear();
+        //await AsyncStorage.clear();
         const existingData = await AsyncStorage.getItem('giftCards');
         if (existingData !== null) {
+          console.log('error ni ', JSON.parse(existingData));
           setGiftCards(JSON.parse(existingData));
-          console.log('latest fucknem ARE ====+===', fucknem);
-          //  setGiftCards(JSON.parse(existingData));
-          //   console.log('latest GIFTCARDS ARE ====+===', giftCards);
         }
       } catch (error) {
         console.log(error);
-        //setGiftCards([]);
       }
     };
     getData();
@@ -85,6 +94,7 @@ const App = ({navigation}: AppProps) => {
         // console.log(data.result.message);
         if (merchantjson && Array.isArray(merchantjson)) {
           // check if the data is an array
+          console.log('ASYNCMERCHANTS ARE =============', merchantjson);
           //    console.log('dat is =======', merchantjson);
           await AsyncStorage.setItem(
             'merchantdata',

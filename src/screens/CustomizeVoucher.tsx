@@ -1,8 +1,17 @@
-import {ScrollView, Button, Text, Actionsheet, CheckIcon} from 'native-base';
+import {
+  ScrollView,
+  Button,
+  Text,
+  Actionsheet,
+  CheckIcon,
+  SectionList,
+} from 'native-base';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
 import React, {useEffect, useState} from 'react';
 import {
+  FlatList,
+  Modal,
   SafeAreaView,
   StyleSheet,
   TextInput,
@@ -11,15 +20,31 @@ import {
 } from 'react-native';
 import GiftCard from '../components/GiftCard';
 
-import {Merchant, AppState} from '../../types';
+import {Merchant, AppState, RootState} from '../../types';
 import {Select} from 'native-base';
 import {colorOptions} from '../colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {GiftCardData} from '../../types';
+import {useSelector} from 'react-redux';
+import Contacts from 'react-native-contacts';
+import ContactPickerModal from './ContactPickerModal';
+import ContactPicker from './ContactPicker';
+
 interface CustomizeVoucherProps {
   navigation: NavigationProp<ParamListBase>;
 }
 const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
+  //modal
+  //get contacts
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<any>(null);
+
+  const handleContactSelect = contact => {
+    setSelectedContact(contact);
+    setModalVisible(false);
+  };
+
+
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(
     null,
   );
@@ -27,6 +52,16 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
   const [service, setService] = React.useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredData, setFilteredData] = useState([]);
+  const [amount, setAmount] = useState(0);
+  const contactsData = useSelector((state: RootState) => state.contacts);
+
+  const handleAmountSelection = amountValue => {
+    setAmount(amountValue);
+  };
+
+  const handleCustomAmountEntry = amountValue => {
+    setAmount(amountValue);
+  };
 
   const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
   const [note, setNote] = useState('');
@@ -45,9 +80,12 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+
         const storedData = await AsyncStorage.getItem('merchantdata');
         if (storedData !== null) {
+          
           const parsedData = JSON.parse(storedData);
+          console.log('GOTEM ARE =============', parsedData);
           setData(parsedData);
         }
       } catch (error) {
@@ -66,7 +104,7 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
       (m: Merchant) => m.lookup_values_3 === merchant.lookup_values_3,
     );
     setFilteredData(filteredData);
-    console.log('NWE FILTERED DATA IS ===', filteredData);
+    // console.log('NWE FILTERED DATA IS ===', filteredData);
   };
 
   useEffect(() => {
@@ -189,22 +227,71 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
             expire.
           </Text>
         </View>
+
+        {/* /Contacts */}
+        <View style={styles.reciprient}>
+          <Text style={styles.title}>Customize Voucher</Text>
+
+          <View style={styles.modcontainer}>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <Text style={styles.button}>Select Contact</Text>
+            </TouchableOpacity>
+
+            <Modal visible={modalVisible} animationType="slide">
+              <View style={styles.modalContainer}>
+                <ContactPicker onContactSelect={handleContactSelect} />
+              </View>
+            </Modal>
+
+            {selectedContact && (
+              <View>
+                <Text>{`${selectedContact.givenName} ${selectedContact.familyName}`}</Text>
+                <Button
+                  // title="Clear Selection"
+                  onPress={() => setSelectedContact(null)}
+                />
+              </View>
+            )}
+          </View>
+          {/* <ContactPickerModal
+            isVisible={modalVisible}
+            onDone={() => setModalVisible(false)}
+            onSelect={handleContactSelect}
+          /> */}
+        </View>
         <View style={styles.amountContainer}>
           <Text style={styles.headerText}>Choose An Amount</Text>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleAmountSelection('1000')}>
               <Text style={styles.buttonText}>1000</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>1000</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleAmountSelection('5000')}>
+              <Text style={styles.buttonText}>5000</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleAmountSelection('10000')}>
               <Text style={styles.buttonText}>10000</Text>
             </TouchableOpacity>
+            {/* <TextInput
+          style={styles.amountSelector}
+          placeholder="Other Amount"
+          placeholderTextColor="#7c7c7c"
+          keyboardType="numeric"
+          onChangeText={handleCustomAmountEntry}
+          value={amount}
+        /> */}
             <TextInput
               style={styles.amountSelector}
               placeholder="Other Amount"
               placeholderTextColor="#7c7c7c"
+              keyboardType="numeric"
+              onChangeText={handleCustomAmountEntry}
+              defaultValue={amount.toString()}
             />
           </View>
         </View>
@@ -242,11 +329,11 @@ const CustomizeVoucher = ({navigation}: CustomizeVoucherProps) => {
             handleAddNewGiftCard({
               id: Math.random(),
               merchantname: service,
-              amount: 6666,
+              amount: amount,
               note: note,
               category: selectedCategory,
-              receiver: 'jane',
-              color: {selectedColor},
+              receiver: ' cosmas',
+              color: selectedColor,
             })
           }>
           <Text>Add Gift Card</Text>
@@ -439,5 +526,43 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
+
+  reciprient: {
+    flex: 1,
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  section: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  label: {
+    fontSize: 18,
+    marginRight: 10,
+  },
+
+  modcontainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalbutton: {
+    fontSize: 18,
+    color: 'blue',
+    textDecorationLine: 'underline',
+  },
+  modalContainer: {
+    flex: 1,
+    marginTop: 22,
+    backgroundColor: '#fff',
+  },
 });
 export default CustomizeVoucher;
+function setModalVisible(arg0: boolean): void {
+  throw new Error('Function not implemented.');
+}

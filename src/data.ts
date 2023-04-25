@@ -1,3 +1,5 @@
+import Contacts from 'react-native-contacts';
+
 export async function fetchData() {
   try {
     const response = await fetch(
@@ -12,5 +14,21 @@ export async function fetchData() {
     console.error(error);
   }
   // Return empty array if there was an error or the fetched data is not an array
+  return [];
+}
+
+export async function fetchContacts() {
+  try {
+    // Request permission to access contacts
+    await Contacts.requestPermission();
+
+    // Fetch contacts
+    const contacts = await Contacts.getAll();
+  //  console.log('DATA TIMEEEE',contacts);
+return contacts;
+  
+  } catch (error) {
+    console.error(error);
+  }
   return [];
 }
