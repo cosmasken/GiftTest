@@ -11,7 +11,11 @@ A simple app for creating Giftcards.Uses ststic data but can be adapted to use g
 ✅ Enjoy!
 
 # Screenshots
-
+![Alt text](/screenshots/home.png?raw=true "Home")
+![Alt text](/screenshots/categories.png?raw=true "Categories")
+![Alt text](/screenshots/merchants.png?raw=true "Merchants")
+![Alt text](/screenshots/customize.png?raw=true "Customize")
+![Alt text](/screenshots/note.png?raw=true "Add Note")
 
 
 
