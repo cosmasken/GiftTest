@@ -563,6 +563,3 @@ const styles = StyleSheet.create({
   },
 });
 export default CustomizeVoucher;
-function setModalVisible(arg0: boolean): void {
-  throw new Error('Function not implemented.');
-}
