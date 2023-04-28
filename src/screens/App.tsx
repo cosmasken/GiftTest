@@ -22,6 +22,7 @@ import {NavigationProp, ParamListBase} from '@react-navigation/native';
 
 import GiftCard from '../components/GiftCard';
 import NetInfo from '@react-native-community/netinfo';
+import {NativeModules} from 'react-native';
 interface AppProps {
   navigation: NavigationProp<ParamListBase>;
 }
@@ -40,6 +41,20 @@ const Item = ({amount, merchantname, receiver, note, category}) => {
 };
 
 const App = ({navigation}: AppProps) => {
+  //const {HTTPManager} = NativeModules;
+
+  // HTTPManager.makeHTTPRequest(
+  //   'https://run.mocky.io/v3/2598c0cf-5647-4ecc-ba4b-15cbc14a2124',
+  //   (data, error) => {
+  //     if (error) {
+  //       console.error(error);
+  //     } else {
+  //       const result = JSON.parse(data);
+  //       console.log(result);
+  //     }
+  //   },
+  // );
+
   const reduxMerchants = useSelector((state: RootState) => state.merchants);
   const [giftCards, setGiftCards] = useState<
     {
@@ -65,13 +80,38 @@ const App = ({navigation}: AppProps) => {
     }[]
   >([]);
 
+  //Swift Httpengine
+  useEffect(() => {
+    try {
+      const response =  NativeModules.Httpengine.request('https://example.com/data.json');
+      // do something with the response
+      console.error(response);
+    } catch (error) {
+      console.error(error);
+    }
+    console.log(NativeModules.Httpengine);
+   // console.log(NativeModules.Httpengine.makeHTTPRequest());
+
+    // HTTPManager.makeHTTPRequest(
+    //   'https://run.mocky.io/v3/2598c0cf-5647-4ecc-ba4b-15cbc14a2124',
+    //   (data, error) => {
+    //     if (error) {
+    //       console.error('HTTTTTTTTTPENGINEERROR', error);
+    //     } else {
+    //       const result = JSON.parse(data);
+    //       console.log('HTTTTTTTTTPENGINERESULT', result);
+    //     }
+    //   },
+    // );
+  }, []);
+
   useEffect(() => {
     const getData = async () => {
       try {
         //await AsyncStorage.clear();
         const existingData = await AsyncStorage.getItem('giftCards');
         if (existingData !== null) {
-          console.log('error ni ', JSON.parse(existingData));
+          //console.log('error ni ', JSON.parse(existingData));
           setGiftCards(JSON.parse(existingData));
         }
       } catch (error) {
@@ -94,7 +134,7 @@ const App = ({navigation}: AppProps) => {
         // console.log(data.result.message);
         if (merchantjson && Array.isArray(merchantjson)) {
           // check if the data is an array
-          console.log('ASYNCMERCHANTS ARE =============', merchantjson);
+       //   console.log('ASYNCMERCHANTS ARE =============', merchantjson);
           //    console.log('dat is =======', merchantjson);
           await AsyncStorage.setItem(
             'merchantdata',
